@@ -17,6 +17,9 @@ player_pos = pygame.Vector2(screen.get_width()/2, screen.get_height()/2)
 player_health = 80
 player_size = player_health // 2
 
+hurd = [pygame.Rect(0,0,5,5), pygame.Rect(600,300,5,5), pygame.Rect(100, 100, 5, 5)]
+
+portal = pygame.Rect(400, 250, 60, 60)
 
 while running:
     # poll for events and react to user closing the window to end the game
@@ -28,9 +31,23 @@ while running:
     screen.fill([255,255,255])
 
     # Draw the player
-    pygame.draw.rect(screen, [0,0,0], (player_pos.x, player_pos.y, player_size, player_size))
+    player_rect = pygame.draw.rect(screen, [0,0,0], (player_pos.x, player_pos.y, player_size, player_size))
 
-    #pygame.draw.rect(screen, [0,0,0], 
+    for h in hurd:
+        pygame.draw.rect(screen, [0,0,0], h)
+        
+    
+    index = player_rect.collidelist(hurd)
+    if index > 0:
+        beast = hurd[index]
+        player_size += beast.width//2
+        hurd.pop(index)
+        
+    pygame.draw.rect(screen, [0,0,0], portal)
+    
+    if portal.contains(player_rect):
+        running = False
+        win = True
 
     # update player position based on keys pressed
     keys = pygame.key.get_pressed()
@@ -63,7 +80,10 @@ while running:
 
     clock.tick(60) # limit to 60 FPS
 
-fontSurface = font.render("You Died", True, [255,0,0])
+if win:
+    fontSurface = font.render("You win", True, [0,255,0])
+else:
+    fontSurface = font.render("You Died", True, [255,0,0])
 screen.blit (fontSurface, [300, 200])
 pygame.display.flip()
 
